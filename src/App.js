@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-function CartaJugador({ jugador, style }) {
+function CartaJugador({ jugador, style, isMobile }) {
   const cartaStyle = {
     position: "absolute",
-    width: "70px",
-    height: "100px",
+    width: isMobile ? "55px" : "70px",   // 🔹 más pequeñas en mobile
+    height: isMobile ? "80px" : "100px",
     backgroundColor: "#1c1c1c",
     color: "#fff",
     borderRadius: "10px",
-    display: "flex",
+    display: "flex",  
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-between",
@@ -40,8 +40,8 @@ function CartaJugador({ jugador, style }) {
   };
 
   const imagenStyle = {
-    width: "50px",
-    height: "50px",
+    width: isMobile ? "40px" : "50px",   // 🔹 imagen más chica en mobile
+    height: isMobile ? "40px" : "50px",
     borderRadius: "50%",
     objectFit: "cover",
     marginTop: "10px",
@@ -73,7 +73,7 @@ function App() {
   const campoStyle = {
     width: "90vw",
     maxWidth: "600px",
-    height: "80vh",
+    height: isMobile ? "80vh" : "80vh",
     maxHeight: "600px",
     margin: "0 auto",
     backgroundImage: "url('/imagenes/field.png')",
@@ -81,28 +81,29 @@ function App() {
     backgroundPosition: "bottom",
     position: "relative",
     borderRadius: "10px",
+    overflow: "hidden", // ✅ evita scroll lateral en mobile
   };
 
   // 📌 Posiciones corregidas
-  const posiciones = isMobile
-    ? {
-        // 📱 Vista móvil
-        DC: { bottom: 75, left: 50 },
-        LW: { bottom: 75, left: 25 },
-        RW: { bottom: 75, left: 75 },
-        MC: [
-          { bottom: 55, left: 25 },
-          { bottom: 55, left: 50 },
-          { bottom: 55, left: 75 },
-        ], // 3 medios en línea
-        LI: { bottom: 28, left: 18 },
-        DFC: [
-          { bottom: 28, left: 40 },
-          { bottom: 28, left: 60 },
-        ],
-        LD: { bottom: 28, left: 82 },
-        POR: { bottom: 8, left: 50 },
-      }
+const posiciones = isMobile
+  ? {
+      // 📱 Vista móvil
+      DC: { bottom: 75, left: 50 },
+      LW: { bottom: 75, left: 25 },
+      RW: { bottom: 75, left: 75 },
+      MC: [
+        { bottom: 55, left: 25 },
+        { bottom: 55, left: 50 },
+        { bottom: 55, left: 75 },
+      ],
+      LI: { bottom: 32, left: 18 }, 
+      DFC: [
+        { bottom: 28, left: 40 },   // 🔹 más separado a la izquierda
+        { bottom: 28, left: 62 },   // 🔹 más separado a la derecha
+      ],
+      LD: { bottom: 32, left: 84 }, 
+      POR: { bottom: 4, left: 50 }, 
+    }
     : {
         // 🖥️ Vista escritorio
         DC: { bottom: 78, left: 50 },
@@ -111,16 +112,16 @@ function App() {
         MC: { bottom: 58, left: 35 },
         MCO: { bottom: 58, left: 65 },
         MCD: { bottom: 48, left: 50 },
-        LI: { bottom: 28, left: 18 },
+        LI: { bottom: 32, left: 18 },
         DFC: [
           { bottom: 28, left: 38 },
           { bottom: 28, left: 62 },
         ],
-        LD: { bottom: 28, left: 82 },
-        POR: { bottom: 10, left: 50 },
+        LD: { bottom: 32, left: 82 },
+        POR: { bottom: 8, left: 50 },
       };
 
-  // 📌 Adaptamos las posiciones de mediocentros en mobile
+  // 📌 Adaptamos mediocentros en mobile
   const getJugadoresPorPosicion = (pos) => {
     if (isMobile && pos === "MC") {
       return jugadores.filter(
@@ -133,7 +134,7 @@ function App() {
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <h1 style={{ textAlign: "center", color: "#2c3e50" }}>
-        Mi Fantasy League ⚽
+        Schalke League ⚽
       </h1>
       <div style={campoStyle}>
         {Object.entries(posiciones).map(([pos, coords]) => {
@@ -144,6 +145,7 @@ function App() {
               <CartaJugador
                 key={jugador.id}
                 jugador={jugador}
+                isMobile={isMobile}  // 🔹 pasamos la prop
                 style={{
                   bottom: `${coords[i].bottom}%`,
                   left: `${coords[i].left}%`,
@@ -156,6 +158,7 @@ function App() {
               <CartaJugador
                 key={jugador.id}
                 jugador={jugador}
+                isMobile={isMobile}  // 🔹 pasamos la prop
                 style={{
                   bottom: `${coords.bottom}%`,
                   left: `${coords.left}%`,
