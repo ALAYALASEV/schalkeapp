@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 
-function CartaJugador({ jugador, style, isMobile }) {
+function CartaJugador({ jugador, style, isMobile, onClick, seleccionado, enModal }) {
   const cartaStyle = {
-    position: "absolute",
-    width: isMobile ? "55px" : "70px",   // 🔹 más pequeñas en mobile
+    position: enModal ? "relative" : "absolute",
+    width: isMobile ? "55px" : "70px",
     height: isMobile ? "80px" : "100px",
-    backgroundColor: "#1c1c1c",
+    backgroundColor: seleccionado ? "#f39c12" : "#1c1c1c",
     color: "#fff",
     borderRadius: "10px",
-    display: "flex",  
+    display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-between",
     padding: "3px",
     boxShadow: "0 0 10px rgba(0,0,0,0.7)",
     fontFamily: "'Cinzel', serif",
+    cursor: onClick ? "pointer" : "default",
     ...style,
   };
 
@@ -40,7 +41,7 @@ function CartaJugador({ jugador, style, isMobile }) {
   };
 
   const imagenStyle = {
-    width: isMobile ? "40px" : "50px",   // 🔹 imagen más chica en mobile
+    width: isMobile ? "40px" : "50px",
     height: isMobile ? "40px" : "50px",
     borderRadius: "50%",
     objectFit: "cover",
@@ -48,7 +49,7 @@ function CartaJugador({ jugador, style, isMobile }) {
   };
 
   return (
-    <div style={cartaStyle}>
+    <div style={cartaStyle} onClick={onClick}>
       <div style={puntuacionStyle}>{jugador.puntos}</div>
       <img src={jugador.imagen} alt={jugador.nombre} style={imagenStyle} />
       <div style={nombreStyle}>{jugador.nombre}</div>
@@ -56,9 +57,68 @@ function CartaJugador({ jugador, style, isMobile }) {
   );
 }
 
+function ModalSuplentes({ suplentes, onSelect, onClose, isMobile }) {
+  const overlayStyle = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(0,0,0,0.7)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+  };
+
+  const modalStyle = {
+    backgroundColor: "#ecf0f1",
+    borderRadius: "10px",
+    padding: "20px",
+    maxWidth: isMobile ? "90vw" : "600px",
+    maxHeight: isMobile ? "70vh" : "500px",
+    overflowY: "auto",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  };
+
+  const gridStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+    justifyContent: "center",
+    width: "100%",
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  return (
+    <div style={overlayStyle} onClick={handleOverlayClick}>
+      <div style={modalStyle}>
+        <h3 style={{ textAlign: "center", color: "#2c3e50" }}>Elige un suplente</h3>
+        <div style={gridStyle}>
+          {suplentes.map((s) => (
+            <CartaJugador
+              key={s.id}
+              jugador={s}
+              isMobile={isMobile}
+              enModal={true}
+              onClick={() => onSelect(s)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [jugadores, setJugadores] = useState([]);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false);
+  const [jugadorSeleccionado, setJugadorSeleccionado] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:4000/jugadores")
@@ -66,6 +126,7 @@ function App() {
       .then((data) => setJugadores(data));
 
     const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize(); // Inicializa correctamente al montar
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -81,31 +142,28 @@ function App() {
     backgroundPosition: "bottom",
     position: "relative",
     borderRadius: "10px",
-    overflow: "hidden", // ✅ evita scroll lateral en mobile
+    overflow: "hidden",
   };
 
-  // 📌 Posiciones corregidas
-const posiciones = isMobile
-  ? {
-      // 📱 Vista móvil
-      DC: { bottom: 75, left: 50 },
-      LW: { bottom: 75, left: 25 },
-      RW: { bottom: 75, left: 75 },
-      MC: [
-        { bottom: 55, left: 25 },
-        { bottom: 55, left: 50 },
-        { bottom: 55, left: 75 },
-      ],
-      LI: { bottom: 32, left: 18 }, 
-      DFC: [
-        { bottom: 28, left: 40 },   // 🔹 más separado a la izquierda
-        { bottom: 28, left: 62 },   // 🔹 más separado a la derecha
-      ],
-      LD: { bottom: 32, left: 84 }, 
-      POR: { bottom: 4, left: 50 }, 
-    }
+  const posiciones = isMobile
+    ? {
+        DC: { bottom: 75, left: 50 },
+        LW: { bottom: 75, left: 25 },
+        RW: { bottom: 75, left: 75 },
+        MC: [
+          { bottom: 55, left: 25 },
+          { bottom: 55, left: 50 },
+          { bottom: 55, left: 75 },
+        ],
+        LI: { bottom: 32, left: 18 },
+        DFC: [
+          { bottom: 28, left: 40 },
+          { bottom: 28, left: 62 },
+        ],
+        LD: { bottom: 32, left: 84 },
+        POR: { bottom: 4, left: 50 },
+      }
     : {
-        // 🖥️ Vista escritorio
         DC: { bottom: 78, left: 50 },
         LW: { bottom: 72, left: 20 },
         RW: { bottom: 72, left: 80 },
@@ -121,54 +179,88 @@ const posiciones = isMobile
         POR: { bottom: 8, left: 50 },
       };
 
-  // 📌 Adaptamos mediocentros en mobile
+  // 1. getJugadoresPorPosicion con equivalencias
   const getJugadoresPorPosicion = (pos) => {
-    if (isMobile && pos === "MC") {
-      return jugadores.filter(
-        (j) => j.posicion === "MC" || j.posicion === "MCO" || j.posicion === "MCD"
-      );
-    }
-    return jugadores.filter((j) => j.posicion === pos);
+    const equivalencias = isMobile && pos === "MC" ? ["MC", "MCO", "MCD"] : [pos];
+    return jugadores.filter((j) => equivalencias.includes(j.posicion));
   };
+
+  const suplentes = jugadores.filter((j) => !j.titular);
+
+  const getSuplentesPorPosicion = (pos) => {
+    const equivalencias = {
+      MC: ["MC"],
+      MCO: ["MCO"],
+      MCD: ["MCD"],
+      DC: ["DC"],
+      LW: ["LW"],
+      RW: ["RW"],
+      LI: ["LI"],
+      LD: ["LD"],
+      DFC: ["DFC"],
+      POR: ["POR"],
+    };
+    const posicionesValidas = equivalencias[pos] || [pos];
+    return suplentes.filter((s) => posicionesValidas.includes(s.posicion));
+  };
+
+  const handleSelectTitular = (jugador) => {
+    setJugadorSeleccionado(jugador);
+  };
+
+  const handleSelectSuplente = (suplente) => {
+    if (!jugadorSeleccionado) return;
+
+    const nuevosJugadores = jugadores.map((j) => {
+      if (j.id === jugadorSeleccionado.id) {
+        return { ...suplente, titular: true, coords: j.coords };
+      }
+      if (j.id === suplente.id) {
+        return { ...jugadorSeleccionado, titular: false, coords: undefined };
+      }
+      return j;
+    });
+
+    setJugadores(nuevosJugadores);
+    setJugadorSeleccionado(null);
+  };
+
+  // 3. Usar flatMap para aplanar el array de componentes
+  const cartasTitulares = Object.entries(posiciones).flatMap(([pos, coords]) => {
+    const jugadoresPos = getJugadoresPorPosicion(pos).filter((j) => j.titular);
+    return jugadoresPos.map((jugador, i) => {
+      let coord = Array.isArray(coords) ? coords[i] : coords;
+      if (!coord) return null;
+      return (
+        <CartaJugador
+          key={jugador.id}
+          jugador={jugador}
+          isMobile={isMobile}
+          onClick={() => handleSelectTitular(jugador)}
+          seleccionado={jugadorSeleccionado?.id === jugador.id}
+          style={{
+            bottom: `${coord.bottom}%`,
+            left: `${coord.left}%`,
+            transform: "translateX(-50%)",
+          }}
+        />
+      );
+    });
+  });
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", color: "#2c3e50" }}>
-        Schalke League ⚽
-      </h1>
-      <div style={campoStyle}>
-        {Object.entries(posiciones).map(([pos, coords]) => {
-          const jugadoresPos = getJugadoresPorPosicion(pos);
+      <h1 style={{ textAlign: "center", color: "#2c3e50" }}>Schalke League ⚽</h1>
+      <div style={campoStyle}>{cartasTitulares}</div>
 
-          if (Array.isArray(coords)) {
-            return jugadoresPos.map((jugador, i) => (
-              <CartaJugador
-                key={jugador.id}
-                jugador={jugador}
-                isMobile={isMobile}  // 🔹 pasamos la prop
-                style={{
-                  bottom: `${coords[i].bottom}%`,
-                  left: `${coords[i].left}%`,
-                  transform: "translateX(-50%)",
-                }}
-              />
-            ));
-          } else {
-            return jugadoresPos.map((jugador) => (
-              <CartaJugador
-                key={jugador.id}
-                jugador={jugador}
-                isMobile={isMobile}  // 🔹 pasamos la prop
-                style={{
-                  bottom: `${coords.bottom}%`,
-                  left: `${coords.left}%`,
-                  transform: "translateX(-50%)",
-                }}
-              />
-            ));
-          }
-        })}
-      </div>
+      {jugadorSeleccionado && (
+        <ModalSuplentes
+          suplentes={getSuplentesPorPosicion(jugadorSeleccionado.posicion)}
+          onSelect={handleSelectSuplente}
+          onClose={() => setJugadorSeleccionado(null)}
+          isMobile={isMobile}
+        />
+      )}
     </div>
   );
 }
