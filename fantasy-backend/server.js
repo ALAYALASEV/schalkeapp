@@ -18,8 +18,7 @@ let jugadores = [
 
   // Mediocentros titulares
   { id: 3, nombre: "Carlos Ruiz", posicion: "MCD", puntos: 20, imagen: "/imagenes/imagen.png", titular: true, coords: { bottom: 40, left: 50 } },
-  { id: 6, nombre: "Sergio Jiménez", posicion: "MC", puntos: 22, imagen: "/imagenes/imagen.png", titular: true, coords: { bottom: 40, left: 30 } },
-  { id: 9, nombre: "Raúl Sánchez", posicion: "MCO", puntos: 21, imagen: "/imagenes/imagen.png", titular: true, coords: { bottom: 40, left: 70 } },
+  { id: 6, nombre: "Sergio Jiménez", posicion: "MD", puntos: 22, imagen: "/imagenes/imagen.png", titular: true, coords: { bottom: 40, left: 30 } },
   { id: 13, nombre: "Jorge Martínez", posicion: "MI", puntos: 19, imagen: "/imagenes/imagen.png", titular: true, coords: { bottom: 40, left: 10 } },
 
   // Delanteros titulares
@@ -30,7 +29,7 @@ let jugadores = [
   // Suplentes
   { id: 14, nombre: "Suplente 1", posicion: "POR", puntos: 10, imagen: "/imagenes/imagen.png", titular: false },
   { id: 15, nombre: "Suplente 2", posicion: "DFC", puntos: 12, imagen: "/imagenes/imagen.png", titular: false },
-  { id: 16, nombre: "Suplente 3", posicion: "MC", puntos: 13, imagen: "/imagenes/imagen.png", titular: false },
+  { id: 16, nombre: "Suplente 3", posicion: "MD", puntos: 13, imagen: "/imagenes/imagen.png", titular: false },
   { id: 17, nombre: "Suplente 4", posicion: "DC", puntos: 14, imagen: "/imagenes/imagen.png", titular: false },
   { id: 18, nombre: "Suplente 5", posicion: "DC", puntos: 14, imagen: "/imagenes/imagen.png", titular: false },
   { id: 19, nombre: "Suplente 6", posicion: "DC", puntos: 14, imagen: "/imagenes/imagen.png", titular: false },

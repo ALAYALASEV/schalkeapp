@@ -126,7 +126,7 @@ function App() {
       .then((data) => setJugadores(data));
 
     const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize(); // Inicializa correctamente al montar
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -145,52 +145,43 @@ function App() {
     overflow: "hidden",
   };
 
+  // Definimos las posiciones solo con MI, MCD y MD
   const posiciones = isMobile
     ? {
         DC: { bottom: 75, left: 50 },
-        LW: { bottom: 75, left: 25 },
-        RW: { bottom: 75, left: 75 },
-        MC: [
-          { bottom: 55, left: 25 },
-          { bottom: 55, left: 50 },
-          { bottom: 55, left: 75 },
-        ],
-        LI: { bottom: 32, left: 18 },
+        LW: { bottom: 70, left: 15 },
+        RW: { bottom: 70, left: 85 },
+        MI: { bottom: 50, left: 25 },
+        MCD: { bottom: 42, left: 50 },
+        MD: { bottom: 50, left: 75 },
+        LI: { bottom: 30, left: 18 },
         DFC: [
-          { bottom: 28, left: 40 },
-          { bottom: 28, left: 62 },
+          { bottom: 23, left: 40 },
+          { bottom: 23, left: 62 },
         ],
-        LD: { bottom: 32, left: 84 },
+        LD: { bottom: 30, left: 84 },
         POR: { bottom: 4, left: 50 },
       }
     : {
         DC: { bottom: 78, left: 50 },
         LW: { bottom: 72, left: 20 },
         RW: { bottom: 72, left: 80 },
-        MC: { bottom: 58, left: 35 },
-        MCO: { bottom: 58, left: 65 },
+        MI: { bottom: 58, left: 35 },
         MCD: { bottom: 48, left: 50 },
-        LI: { bottom: 32, left: 18 },
+        MD: { bottom: 58, left: 65 },
+        LI: { bottom: 35, left: 18 },
         DFC: [
           { bottom: 28, left: 38 },
           { bottom: 28, left: 62 },
         ],
-        LD: { bottom: 32, left: 82 },
+        LD: { bottom: 35, left: 82 },
         POR: { bottom: 8, left: 50 },
       };
 
-  // 1. getJugadoresPorPosicion con equivalencias
   const getJugadoresPorPosicion = (pos) => {
-    const equivalencias = isMobile && pos === "MC" ? ["MC", "MCO", "MCD"] : [pos];
-    return jugadores.filter((j) => equivalencias.includes(j.posicion));
-  };
-
-  const suplentes = jugadores.filter((j) => !j.titular);
-
-  const getSuplentesPorPosicion = (pos) => {
     const equivalencias = {
-      MC: ["MC"],
-      MCO: ["MCO"],
+      MI: ["MI"],
+      MD: ["MD"],
       MCD: ["MCD"],
       DC: ["DC"],
       LW: ["LW"],
@@ -200,6 +191,27 @@ function App() {
       DFC: ["DFC"],
       POR: ["POR"],
     };
+
+    const posicionesValidas = equivalencias[pos] || [pos];
+    return jugadores.filter((j) => posicionesValidas.includes(j.posicion));
+  };
+
+  const suplentes = jugadores.filter((j) => !j.titular);
+
+  const getSuplentesPorPosicion = (pos) => {
+    const equivalencias = {
+      MI: ["MI"],
+      MD: ["MD"],
+      MCD: ["MCD"],
+      DC: ["DC"],
+      LW: ["LW"],
+      RW: ["RW"],
+      LI: ["LI"],
+      LD: ["LD"],
+      DFC: ["DFC"],
+      POR: ["POR"],
+    };
+
     const posicionesValidas = equivalencias[pos] || [pos];
     return suplentes.filter((s) => posicionesValidas.includes(s.posicion));
   };
@@ -225,7 +237,6 @@ function App() {
     setJugadorSeleccionado(null);
   };
 
-  // 3. Usar flatMap para aplanar el array de componentes
   const cartasTitulares = Object.entries(posiciones).flatMap(([pos, coords]) => {
     const jugadoresPos = getJugadoresPorPosicion(pos).filter((j) => j.titular);
     return jugadoresPos.map((jugador, i) => {
