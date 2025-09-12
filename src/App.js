@@ -57,6 +57,27 @@ function CartaJugador({ jugador, style, isMobile, onClick, seleccionado, enModal
   );
 }
 
+function CartaVacia({ style, onClick, isMobile }) {
+  const cartaStyle = {
+    position: "absolute",
+    width: isMobile ? "55px" : "70px",
+    height: isMobile ? "80px" : "100px",
+    backgroundColor: "#7f8c8d",
+    borderRadius: "10px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#fff",
+    fontSize: "14px",
+    fontStyle: "italic",
+    cursor: "pointer",
+    boxShadow: "0 0 8px rgba(0,0,0,0.5)",
+    ...style,
+  };
+
+  return <div style={cartaStyle} onClick={onClick}>+</div>;
+}
+
 function ModalSuplentes({ suplentes, onSelect, onClose, isMobile }) {
   const overlayStyle = {
     position: "fixed",
@@ -134,7 +155,7 @@ function App() {
   const campoStyle = {
     width: "90vw",
     maxWidth: "600px",
-    height: isMobile ? "80vh" : "80vh",
+    height: "80vh",
     maxHeight: "600px",
     margin: "0 auto",
     backgroundImage: "url('/imagenes/field.png')",
@@ -145,7 +166,6 @@ function App() {
     overflow: "hidden",
   };
 
-  // Definimos las posiciones solo con MI, MCD y MD
   const posiciones = isMobile
     ? {
         DC: { bottom: 75, left: 50 },
@@ -169,12 +189,12 @@ function App() {
         MI: { bottom: 58, left: 35 },
         MCD: { bottom: 48, left: 50 },
         MD: { bottom: 58, left: 65 },
-        LI: { bottom: 35, left: 18 },
+        LI: { bottom: 32, left: 18 },
         DFC: [
           { bottom: 28, left: 38 },
           { bottom: 28, left: 62 },
         ],
-        LD: { bottom: 35, left: 82 },
+        LD: { bottom: 32, left: 82 },
         POR: { bottom: 8, left: 50 },
       };
 
@@ -191,9 +211,8 @@ function App() {
       DFC: ["DFC"],
       POR: ["POR"],
     };
-
     const posicionesValidas = equivalencias[pos] || [pos];
-    return jugadores.filter((j) => posicionesValidas.includes(j.posicion));
+    return jugadores.filter((j) => posicionesValidas.includes(j.posicion) && j.titular);
   };
 
   const suplentes = jugadores.filter((j) => !j.titular);
@@ -211,7 +230,6 @@ function App() {
       DFC: ["DFC"],
       POR: ["POR"],
     };
-
     const posicionesValidas = equivalencias[pos] || [pos];
     return suplentes.filter((s) => posicionesValidas.includes(s.posicion));
   };
@@ -223,25 +241,71 @@ function App() {
   const handleSelectSuplente = (suplente) => {
     if (!jugadorSeleccionado) return;
 
-    const nuevosJugadores = jugadores.map((j) => {
-      if (j.id === jugadorSeleccionado.id) {
-        return { ...suplente, titular: true, coords: j.coords };
-      }
-      if (j.id === suplente.id) {
-        return { ...jugadorSeleccionado, titular: false, coords: undefined };
-      }
-      return j;
-    });
+    let nuevosJugadores;
+    if (jugadorSeleccionado.id) {
+      // Intercambio normal
+      nuevosJugadores = jugadores.map((j) => {
+        if (j.id === jugadorSeleccionado.id) {
+          return { ...suplente, titular: true, posicion: j.posicion };
+        }
+        if (j.id === suplente.id) {
+          return { ...jugadorSeleccionado, titular: false };
+        }
+        return j;
+      });
+    } else {
+      // Posición vacía → añadir suplente
+      nuevosJugadores = jugadores.map((j) =>
+        j.id === suplente.id
+          ? { ...suplente, titular: true, posicion: jugadorSeleccionado.posicion }
+          : j
+      );
+    }
 
     setJugadores(nuevosJugadores);
     setJugadorSeleccionado(null);
   };
 
   const cartasTitulares = Object.entries(posiciones).flatMap(([pos, coords]) => {
-    const jugadoresPos = getJugadoresPorPosicion(pos).filter((j) => j.titular);
-    return jugadoresPos.map((jugador, i) => {
-      let coord = Array.isArray(coords) ? coords[i] : coords;
-      if (!coord) return null;
+    const jugadoresPos = getJugadoresPorPosicion(pos);
+
+    if (Array.isArray(coords)) {
+      return coords.map((coord, i) => {
+        const jugador = jugadoresPos[i];
+        if (jugador) {
+          return (
+            <CartaJugador
+              key={jugador.id}
+              jugador={jugador}
+              isMobile={isMobile}
+              onClick={() => handleSelectTitular(jugador)}
+              seleccionado={jugadorSeleccionado?.id === jugador.id}
+              style={{
+                bottom: `${coord.bottom}%`,
+                left: `${coord.left}%`,
+                transform: "translateX(-50%)",
+              }}
+            />
+          );
+        } else {
+          return (
+            <CartaVacia
+              key={`${pos}-${i}`}
+              isMobile={isMobile}
+              onClick={() => setJugadorSeleccionado({ posicion: pos })}
+              style={{
+                bottom: `${coord.bottom}%`,
+                left: `${coord.left}%`,
+                transform: "translateX(-50%)",
+              }}
+            />
+          );
+        }
+      });
+    }
+
+    const jugador = jugadoresPos[0];
+    if (jugador) {
       return (
         <CartaJugador
           key={jugador.id}
@@ -250,18 +314,31 @@ function App() {
           onClick={() => handleSelectTitular(jugador)}
           seleccionado={jugadorSeleccionado?.id === jugador.id}
           style={{
-            bottom: `${coord.bottom}%`,
-            left: `${coord.left}%`,
+            bottom: `${coords.bottom}%`,
+            left: `${coords.left}%`,
             transform: "translateX(-50%)",
           }}
         />
       );
-    });
+    } else {
+      return (
+        <CartaVacia
+          key={pos}
+          isMobile={isMobile}
+          onClick={() => setJugadorSeleccionado({ posicion: pos })}
+          style={{
+            bottom: `${coords.bottom}%`,
+            left: `${coords.left}%`,
+            transform: "translateX(-50%)",
+          }}
+        />
+      );
+    }
   });
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", color: "#2c3e50" }}>Schalke League ⚽</h1>
+      <h1 style={{ textAlign: "center", color: "#2c3e50" }}>Schalke fantasy ⚽</h1>
       <div style={campoStyle}>{cartasTitulares}</div>
 
       {jugadorSeleccionado && (
