@@ -184,8 +184,8 @@ const formaciones = {
   "4-3-3": isMobile
     ? {
         DC: { bottom: 75, left: 50 },
-        LW: { bottom: 70, left: 15 },
-        RW: { bottom: 70, left: 85 },
+        LW: { bottom: 70, left: 20 },
+        RW: { bottom: 70, left: 80 },
         MI: { bottom: 50, left: 25 },
         MCD: { bottom: 42, left: 50 },
         MD: { bottom: 50, left: 75 },
@@ -217,12 +217,12 @@ const formaciones = {
   "4-4-2": isMobile
   ? {
       DC: [
-        { bottom: 70, left: 40 },
-        { bottom: 70, left: 60 },
+        { bottom: 80, left: 40 },
+        { bottom: 80, left: 60 },
       ],
       MI: { bottom: 52, left: 22 },
-      MC: { bottom: 52, left: 40 },
-      MCD: { bottom: 52, left: 60 },
+      MCO: { bottom: 60, left: 50 },
+      MCD: { bottom: 42, left: 50 },
       MD: { bottom: 52, left: 78 },
       LI: { bottom: 30, left: 18 },
       DFC: [
@@ -234,19 +234,19 @@ const formaciones = {
     }
   : {
       DC: [
-        { bottom: 75, left: 40 },
-        { bottom: 75, left: 60 },
+        { bottom: 80, left: 40 },
+        { bottom: 80, left: 60 },
       ],
-      MI: { bottom: 58, left: 25 },
-      MC: { bottom: 58, left: 42 },
-      MCD: { bottom: 58, left: 58 },
-      MD: { bottom: 58, left: 75 },
-      LI: { bottom: 35, left: 18 },
+      MI: { bottom: 52, left: 25 },
+      MCO: { bottom: 62, left: 50 },
+      MCD: { bottom: 42, left: 50 },
+      MD: { bottom: 52, left: 75 },
+      LI: { bottom: 30, left: 18 },
       DFC: [
-        { bottom: 28, left: 38 },
-        { bottom: 28, left: 62 },
+        { bottom: 25, left: 38 },
+        { bottom: 25, left: 62 },
       ],
-      LD: { bottom: 35, left: 82 },
+      LD: { bottom: 30, left: 82 },
       POR: { bottom: 8, left: 50 },
     },
 
@@ -254,35 +254,35 @@ const formaciones = {
   "3-5-2": isMobile
     ? {
         DC: [
-          { bottom: 70, left: 45 },
-          { bottom: 70, left: 55 },
+          { bottom: 75, left: 40 },
+          { bottom: 75, left: 60 },
         ],
-        MI: { bottom: 55, left: 25 },
-        MCD: { bottom: 48, left: 50 },
-        MD: { bottom: 55, left: 75 },
-        LW: { bottom: 65, left: 15 },
-        RW: { bottom: 65, left: 85 },
+        MI: { bottom: 48, left: 25 },
+        MCD: { bottom: 42, left: 50 },
+        MD: { bottom: 48, left: 75 },
+        LW: { bottom: 68, left: 16 },
+        RW: { bottom: 68, left: 83 },
         DFC: [
-          { bottom: 23, left: 35 },
+          { bottom: 23, left: 22 },
           { bottom: 23, left: 50 },
-          { bottom: 23, left: 65 },
+          { bottom: 23, left: 77 },
         ],
         POR: { bottom: 4, left: 50 },
       }
     : {
         DC: [
-          { bottom: 75, left: 45 },
-          { bottom: 75, left: 55 },
+          { bottom: 75, left: 40 },
+          { bottom: 75, left: 60 },
         ],
-        MI: { bottom: 62, left: 25 },
-        MCD: { bottom: 55, left: 50 },
-        MD: { bottom: 62, left: 75 },
+        MI: { bottom: 55, left: 30 },
+        MCD: { bottom: 50, left: 50 },
+        MD: { bottom: 55, left: 70 },
         LW: { bottom: 68, left: 15 },
         RW: { bottom: 68, left: 85 },
         DFC: [
-          { bottom: 28, left: 35 },
+          { bottom: 28, left: 32 },
           { bottom: 28, left: 50 },
-          { bottom: 28, left: 65 },
+          { bottom: 28, left: 69 },
         ],
         POR: { bottom: 8, left: 50 },
       },
@@ -291,35 +291,35 @@ const formaciones = {
   "5-3-2": isMobile
     ? {
         DC: [
-          { bottom: 70, left: 45 },
-          { bottom: 70, left: 55 },
+          { bottom: 73, left: 38 },
+          { bottom: 73, left: 62 },
         ],
-        MI: { bottom: 50, left: 35 },
-        MCD: { bottom: 42, left: 50 },
-        MD: { bottom: 50, left: 65 },
+        MI: { bottom: 53, left: 25 },
+        MCD: { bottom: 43, left: 50 },
+        MD: { bottom: 53, left: 75 },
         LI: { bottom: 30, left: 10 },
         LD: { bottom: 30, left: 90 },
         DFC: [
-          { bottom: 23, left: 25 },
+          { bottom: 23, left: 29 },
           { bottom: 23, left: 50 },
-          { bottom: 23, left: 75 },
+          { bottom: 23, left: 71 },
         ],
         POR: { bottom: 4, left: 50 },
       }
     : {
         DC: [
-          { bottom: 75, left: 45 },
-          { bottom: 75, left: 55 },
+          { bottom: 78, left: 38 },
+          { bottom: 78, left: 62 },
         ],
-        MI: { bottom: 55, left: 35 },
+        MI: { bottom: 55, left: 32 },
         MCD: { bottom: 48, left: 50 },
-        MD: { bottom: 55, left: 65 },
-        LI: { bottom: 32, left: 10 },
-        LD: { bottom: 32, left: 90 },
+        MD: { bottom: 55, left: 68 },
+        LI: { bottom: 35, left: 15 },
+        LD: { bottom: 35, left: 85 },
         DFC: [
-          { bottom: 28, left: 25 },
+          { bottom: 28, left: 32 },
           { bottom: 28, left: 50 },
-          { bottom: 28, left: 75 },
+          { bottom: 28, left: 68 },
         ],
         POR: { bottom: 8, left: 50 },
       },
