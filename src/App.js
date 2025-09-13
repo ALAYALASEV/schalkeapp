@@ -11,7 +11,7 @@ function CartaJugador({ jugador, style, isMobile, onClick, seleccionado, enModal
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center", // ⬅️ centramos el bloque entero
+    justifyContent: "center",
     padding: "3px",
     boxShadow: "0 0 10px rgba(0,0,0,0.7)",
     fontFamily: "'Cinzel', serif",
@@ -45,7 +45,7 @@ function CartaJugador({ jugador, style, isMobile, onClick, seleccionado, enModal
     height: isMobile ? "40px" : "50px",
     borderRadius: "50%",
     objectFit: "cover",
-    margin: "5px 0", // ⬅️ espacio arriba/abajo
+    margin: "5px 0",
   };
 
   return (
@@ -138,15 +138,26 @@ function ModalSuplentes({ suplentes, onSelect, onClose, isMobile }) {
   );
 }
 
-function App() {
+export default function App() {
   const [jugadores, setJugadores] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [jugadorSeleccionado, setJugadorSeleccionado] = useState(null);
+  const [formacion, setFormacion] = useState("4-3-3");
 
   useEffect(() => {
     fetch("http://localhost:4000/jugadores")
       .then((res) => res.json())
-      .then((data) => setJugadores(data));
+      .then((data) => {
+        // si tu endpoint devuelve { jugadores, formacion } lo adaptas aquí
+        if (data.jugadores) {
+          setJugadores(data.jugadores);
+          setFormacion(data.formacion || "4-3-3");
+        } else {
+          // si solo devuelve array de jugadores:
+          setJugadores(data);
+        }
+      })
+      .catch((e) => console.error("fetch jugadores:", e));
 
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -154,7 +165,7 @@ function App() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 🔹 función para guardar plantilla
+  // guardado de plantilla (tu endpoint PUT /plantilla)
   const guardarPlantilla = () => {
     fetch("http://localhost:4000/plantilla", {
       method: "PUT",
@@ -162,27 +173,15 @@ function App() {
       body: JSON.stringify({ jugadores }),
     })
       .then((res) => res.json())
-      .then((data) => {
-        alert(data.message || "Plantilla guardada ✅");
-      })
+      .then((data) => alert(data.message || "Plantilla guardada ✅"))
       .catch((err) => console.error("Error al guardar plantilla:", err));
   };
 
-  const campoStyle = {
-    width: "90vw",
-    maxWidth: "600px",
-    height: "80vh",
-    maxHeight: "600px",
-    margin: "0 auto",
-    backgroundImage: "url('/imagenes/field.png')",
-    backgroundSize: "cover",
-    backgroundPosition: "bottom",
-    position: "relative",
-    borderRadius: "10px",
-    overflow: "hidden",
-  };
-
-  const posiciones = isMobile
+  // --- definimos formaciones correctamente (cada formación tiene 11 slots) ---
+  // Las keys son códigos que usamos también para comparar con jugador.posicion
+const formaciones = {
+  // ✅ Mantenemos tu 4-3-3 tal cual estaba funcionando
+  "4-3-3": isMobile
     ? {
         DC: { bottom: 75, left: 50 },
         LW: { bottom: 70, left: 15 },
@@ -212,54 +211,160 @@ function App() {
         ],
         LD: { bottom: 32, left: 82 },
         POR: { bottom: 8, left: 50 },
-      };
+      },
 
-  const getJugadoresPorPosicion = (pos) => {
-    const equivalencias = {
-      MI: ["MI"],
-      MD: ["MD"],
-      MCD: ["MCD"],
-      DC: ["DC"],
-      LW: ["LW"],
-      RW: ["RW"],
-      LI: ["LI"],
-      LD: ["LD"],
-      DFC: ["DFC"],
-      POR: ["POR"],
-    };
-    const posicionesValidas = equivalencias[pos] || [pos];
-    return jugadores.filter((j) => posicionesValidas.includes(j.posicion) && j.titular);
+  // 🔹 Nuevo: 4-4-2
+  "4-4-2": isMobile
+  ? {
+      DC: [
+        { bottom: 70, left: 40 },
+        { bottom: 70, left: 60 },
+      ],
+      MI: { bottom: 52, left: 22 },
+      MC: { bottom: 52, left: 40 },
+      MCD: { bottom: 52, left: 60 },
+      MD: { bottom: 52, left: 78 },
+      LI: { bottom: 30, left: 18 },
+      DFC: [
+        { bottom: 23, left: 40 },
+        { bottom: 23, left: 60 },
+      ],
+      LD: { bottom: 30, left: 82 },
+      POR: { bottom: 4, left: 50 },
+    }
+  : {
+      DC: [
+        { bottom: 75, left: 40 },
+        { bottom: 75, left: 60 },
+      ],
+      MI: { bottom: 58, left: 25 },
+      MC: { bottom: 58, left: 42 },
+      MCD: { bottom: 58, left: 58 },
+      MD: { bottom: 58, left: 75 },
+      LI: { bottom: 35, left: 18 },
+      DFC: [
+        { bottom: 28, left: 38 },
+        { bottom: 28, left: 62 },
+      ],
+      LD: { bottom: 35, left: 82 },
+      POR: { bottom: 8, left: 50 },
+    },
+
+  // 🔹 Nuevo: 3-5-2
+  "3-5-2": isMobile
+    ? {
+        DC: [
+          { bottom: 70, left: 45 },
+          { bottom: 70, left: 55 },
+        ],
+        MI: { bottom: 55, left: 25 },
+        MCD: { bottom: 48, left: 50 },
+        MD: { bottom: 55, left: 75 },
+        LW: { bottom: 65, left: 15 },
+        RW: { bottom: 65, left: 85 },
+        DFC: [
+          { bottom: 23, left: 35 },
+          { bottom: 23, left: 50 },
+          { bottom: 23, left: 65 },
+        ],
+        POR: { bottom: 4, left: 50 },
+      }
+    : {
+        DC: [
+          { bottom: 75, left: 45 },
+          { bottom: 75, left: 55 },
+        ],
+        MI: { bottom: 62, left: 25 },
+        MCD: { bottom: 55, left: 50 },
+        MD: { bottom: 62, left: 75 },
+        LW: { bottom: 68, left: 15 },
+        RW: { bottom: 68, left: 85 },
+        DFC: [
+          { bottom: 28, left: 35 },
+          { bottom: 28, left: 50 },
+          { bottom: 28, left: 65 },
+        ],
+        POR: { bottom: 8, left: 50 },
+      },
+
+  // 🔹 Nuevo: 5-3-2
+  "5-3-2": isMobile
+    ? {
+        DC: [
+          { bottom: 70, left: 45 },
+          { bottom: 70, left: 55 },
+        ],
+        MI: { bottom: 50, left: 35 },
+        MCD: { bottom: 42, left: 50 },
+        MD: { bottom: 50, left: 65 },
+        LI: { bottom: 30, left: 10 },
+        LD: { bottom: 30, left: 90 },
+        DFC: [
+          { bottom: 23, left: 25 },
+          { bottom: 23, left: 50 },
+          { bottom: 23, left: 75 },
+        ],
+        POR: { bottom: 4, left: 50 },
+      }
+    : {
+        DC: [
+          { bottom: 75, left: 45 },
+          { bottom: 75, left: 55 },
+        ],
+        MI: { bottom: 55, left: 35 },
+        MCD: { bottom: 48, left: 50 },
+        MD: { bottom: 55, left: 65 },
+        LI: { bottom: 32, left: 10 },
+        LD: { bottom: 32, left: 90 },
+        DFC: [
+          { bottom: 28, left: 25 },
+          { bottom: 28, left: 50 },
+          { bottom: 28, left: 75 },
+        ],
+        POR: { bottom: 8, left: 50 },
+      },
+};
+
+  // posiciones seleccionadas (ya adaptadas a mobile o normal)
+  const posiciones = formaciones[formacion] || formaciones["4-3-3"];
+
+  // mapping de qué posiciones del jugador son válidas para un slot
+  const allowedPositions = {
+    POR: ["POR"],
+    DFC: ["DFC"],       // central defenders
+    LI: ["LI"],
+    LD: ["LD"],
+    LW: ["LW"],
+    RW: ["RW"],
+    DC: ["DC"],         // strikers
+    MCD: ["MCD", "MC", "MCO"],
+    MC: ["MC", "MCO", "MCD"],
+    MCO: ["MCO", "MC", "MCD"],
+    MI: ["MI", "MC"],
+    MD: ["MD", "MC"],
   };
 
+  // lista de suplentes
   const suplentes = jugadores.filter((j) => !j.titular);
 
+  // función para obtener suplentes válidos para una posición (usa allowedPositions)
   const getSuplentesPorPosicion = (pos) => {
-    const equivalencias = {
-      MI: ["MI"],
-      MD: ["MD"],
-      MCD: ["MCD"],
-      DC: ["DC"],
-      LW: ["LW"],
-      RW: ["RW"],
-      LI: ["LI"],
-      LD: ["LD"],
-      DFC: ["DFC"],
-      POR: ["POR"],
-    };
-    const posicionesValidas = equivalencias[pos] || [pos];
-    return suplentes.filter((s) => posicionesValidas.includes(s.posicion));
+    const valido = allowedPositions[pos] || [pos];
+    return suplentes.filter((s) => valido.includes(s.posicion));
   };
 
+  // Cuando el usuario selecciona un titular en campo
   const handleSelectTitular = (jugador) => {
     setJugadorSeleccionado(jugador);
   };
 
+  // Intercambiar titular por suplente (o añadir si slot vacío)
   const handleSelectSuplente = (suplente) => {
     if (!jugadorSeleccionado) return;
 
     let nuevosJugadores;
     if (jugadorSeleccionado.id) {
-      // Intercambio normal
+      // intercambio normal
       nuevosJugadores = jugadores.map((j) => {
         if (j.id === jugadorSeleccionado.id) {
           return { ...suplente, titular: true, posicion: j.posicion };
@@ -270,7 +375,7 @@ function App() {
         return j;
       });
     } else {
-      // Posición vacía → añadir suplente
+      // slot vacío -> poner suplente en esa posición
       nuevosJugadores = jugadores.map((j) =>
         j.id === suplente.id
           ? { ...suplente, titular: true, posicion: jugadorSeleccionado.posicion }
@@ -282,14 +387,30 @@ function App() {
     setJugadorSeleccionado(null);
   };
 
-  const cartasTitulares = Object.entries(posiciones).flatMap(([pos, coords]) => {
-    const jugadoresPos = getJugadoresPorPosicion(pos);
+  // --- Asignación determinista de jugadores a slots (sin duplicados) ---
+  const cartasTitulares = (() => {
+    const assigned = new Set();
+    const result = [];
 
-    if (Array.isArray(coords)) {
-      return coords.map((coord, i) => {
-        const jugador = jugadoresPos[i];
-        if (jugador) {
-          return (
+    // Convertimos posiciones (algunos valores pueden ser arrays)
+    const entries = Object.entries(posiciones);
+
+    for (const [pos, coords] of entries) {
+      const coordsArray = Array.isArray(coords) ? coords : [coords];
+      // Para el slot pos, buscamos jugadores titulares válidos (y no asignados todavía)
+      const aceptables = allowedPositions[pos] || [pos];
+
+      for (let i = 0; i < coordsArray.length; i++) {
+        // buscamos el primer jugador titular que encaje y no esté asignado
+        const jugadorIndex = jugadores.findIndex(
+          (j) => j.titular && !assigned.has(j.id) && aceptables.includes(j.posicion)
+        );
+
+        const coord = coordsArray[i];
+        if (jugadorIndex !== -1) {
+          const jugador = jugadores[jugadorIndex];
+          assigned.add(jugador.id);
+          result.push(
             <CartaJugador
               key={jugador.id}
               jugador={jugador}
@@ -299,12 +420,13 @@ function App() {
               style={{
                 bottom: `${coord.bottom}%`,
                 left: `${coord.left}%`,
-                transform: "translateX(-50%)",
+                transform: isMobile ? "translate(-50%, 6%)" : "translateX(-50%)",
               }}
             />
           );
         } else {
-          return (
+          // hueco vacío
+          result.push(
             <CartaVacia
               key={`${pos}-${i}`}
               isMobile={isMobile}
@@ -312,62 +434,60 @@ function App() {
               style={{
                 bottom: `${coord.bottom}%`,
                 left: `${coord.left}%`,
-                transform: "translateX(-50%)",
+                transform: isMobile ? "translate(-50%, 6%)" : "translateX(-50%)",
               }}
             />
           );
         }
-      });
+      }
     }
 
-    const jugador = jugadoresPos[0];
-    if (jugador) {
-      return (
-        <CartaJugador
-          key={jugador.id}
-          jugador={jugador}
-          isMobile={isMobile}
-          onClick={() => handleSelectTitular(jugador)}
-          seleccionado={jugadorSeleccionado?.id === jugador.id}
-          style={{
-            bottom: `${coords.bottom}%`,
-            left: `${coords.left}%`,
-            transform: "translateX(-50%)",
-          }}
-        />
-      );
-    } else {
-      return (
-        <CartaVacia
-          key={pos}
-          isMobile={isMobile}
-          onClick={() => setJugadorSeleccionado({ posicion: pos })}
-          style={{
-            bottom: `${coords.bottom}%`,
-            left: `${coords.left}%`,
-            transform: "translateX(-50%)",
-          }}
-        />
-      );
-    }
-  });
+    return result;
+  })();
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1
-      style={{
-        textAlign: "center",
-        color: "#2c3e50",
-        margin: "5px 0 10px 0", // ⬅️ menos espacio arriba
-        fontSize: "26px",
-      }}
-      >
+      <h1 style={{ textAlign: "center", color: "#2c3e50", margin: "5px 0 10px 0", fontSize: "26px" }}>
         Schalke fantasy ⚽
       </h1>
-      <div style={campoStyle}>{cartasTitulares}</div>
 
-      {/* 🔹 Botón guardar */}
-      <div style={{ textAlign: "center", marginTop: "15px" }}>
+      <div style={{ textAlign: "center", marginBottom: "10px" }}>
+        <label>Formación: </label>
+        <select value={formacion} onChange={(e) => {
+          const nueva = e.target.value;
+          setFormacion(nueva);
+          // guardamos formacion en backend (opcional)
+          fetch("http://localhost:4000/formacion", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ formacion: nueva }),
+          }).catch(() => {});
+        }}>
+          {Object.keys(formaciones).map((f) => (
+            <option key={f} value={f}>{f}</option>
+          ))}
+        </select>
+      </div>
+
+      <div
+        style={{
+          width: "90vw",
+          maxWidth: "700px",
+          height: isMobile ? "75vh" : "80vh",
+          maxHeight: "700px",
+          margin: "0 auto",
+          backgroundImage: "url('/imagenes/field.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center bottom",
+          position: "relative",
+          borderRadius: "12px",
+          overflow: "hidden",
+        }}
+      >
+        {cartasTitulares}
+      </div>
+
+      <div style={{ textAlign: "center", marginTop: "12px" }}>
         <button
           onClick={guardarPlantilla}
           style={{
@@ -397,5 +517,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
