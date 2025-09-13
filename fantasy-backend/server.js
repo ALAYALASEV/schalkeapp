@@ -23,12 +23,31 @@ app.post("/jugadores", (req, res) => {
   res.json({ id: result.lastInsertRowid });
 });
 
-// PUT para actualizar titular/suplente
+// PUT para actualizar titular/suplente de un jugador concreto
 app.put("/jugadores/:id", (req, res) => {
   const { id } = req.params;
   const { titular } = req.body;
   db.prepare(`UPDATE jugadores SET titular = ? WHERE id = ?`).run(titular ? 1 : 0, id);
   res.json({ success: true });
+});
+
+// 🔹 PUT para guardar plantilla completa
+app.put("/plantilla", (req, res) => {
+  const { jugadores } = req.body; // array [{id, titular, posicion}]
+
+  const update = db.prepare(
+    `UPDATE jugadores SET titular = ?, posicion = ? WHERE id = ?`
+  );
+
+  const transaction = db.transaction((jugadores) => {
+    for (const j of jugadores) {
+      update.run(j.titular ? 1 : 0, j.posicion, j.id);
+    }
+  });
+
+  transaction(jugadores);
+
+  res.json({ success: true, message: "Plantilla guardada ✅" });
 });
 
 // 🔹 Servidor escuchando

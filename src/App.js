@@ -11,7 +11,7 @@ function CartaJugador({ jugador, style, isMobile, onClick, seleccionado, enModal
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center", // ⬅️ centramos el bloque entero
     padding: "3px",
     boxShadow: "0 0 10px rgba(0,0,0,0.7)",
     fontFamily: "'Cinzel', serif",
@@ -35,7 +35,7 @@ function CartaJugador({ jugador, style, isMobile, onClick, seleccionado, enModal
   };
 
   const nombreStyle = {
-    marginTop: "3px",
+    marginTop: "5px",
     textAlign: "center",
     fontSize: "10px",
   };
@@ -45,14 +45,16 @@ function CartaJugador({ jugador, style, isMobile, onClick, seleccionado, enModal
     height: isMobile ? "40px" : "50px",
     borderRadius: "50%",
     objectFit: "cover",
-    marginTop: "10px",
+    margin: "5px 0", // ⬅️ espacio arriba/abajo
   };
 
   return (
     <div style={cartaStyle} onClick={onClick}>
       <div style={puntuacionStyle}>{jugador.puntos}</div>
-      <img src={jugador.imagen} alt={jugador.nombre} style={imagenStyle} />
-      <div style={nombreStyle}>{jugador.nombre}</div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <img src={jugador.imagen} alt={jugador.nombre} style={imagenStyle} />
+        <div style={nombreStyle}>{jugador.nombre}</div>
+      </div>
     </div>
   );
 }
@@ -151,6 +153,20 @@ function App() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // 🔹 función para guardar plantilla
+  const guardarPlantilla = () => {
+    fetch("http://localhost:4000/plantilla", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jugadores }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        alert(data.message || "Plantilla guardada ✅");
+      })
+      .catch((err) => console.error("Error al guardar plantilla:", err));
+  };
 
   const campoStyle = {
     width: "90vw",
@@ -338,8 +354,37 @@ function App() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", color: "#2c3e50" }}>Schalke fantasy ⚽</h1>
+      <h1
+      style={{
+        textAlign: "center",
+        color: "#2c3e50",
+        margin: "5px 0 10px 0", // ⬅️ menos espacio arriba
+        fontSize: "26px",
+      }}
+      >
+        Schalke fantasy ⚽
+      </h1>
       <div style={campoStyle}>{cartasTitulares}</div>
+
+      {/* 🔹 Botón guardar */}
+      <div style={{ textAlign: "center", marginTop: "15px" }}>
+        <button
+          onClick={guardarPlantilla}
+          style={{
+            backgroundColor: "#27ae60",
+            color: "white",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "16px",
+            fontWeight: "bold",
+            boxShadow: "0px 4px 8px rgba(0,0,0,0.3)",
+          }}
+        >
+          💾 Guardar plantilla
+        </button>
+      </div>
 
       {jugadorSeleccionado && (
         <ModalSuplentes
