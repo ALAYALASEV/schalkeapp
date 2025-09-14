@@ -217,8 +217,8 @@ const formaciones = {
   "4-4-2": isMobile
   ? {
       DC: [
-        { bottom: 80, left: 40 },
-        { bottom: 80, left: 60 },
+        { bottom: 80, left: 35 },
+        { bottom: 80, left: 65 },
       ],
       MI: { bottom: 52, left: 22 },
       MCO: { bottom: 60, left: 50 },
@@ -446,8 +446,8 @@ const formaciones = {
   })();
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", color: "#2c3e50", margin: "5px 0 10px 0", fontSize: "26px" }}>
+    <div style={{ padding: "10px", fontFamily: "Arial, sans-serif" }}>
+      <h1 style={{ textAlign: "center", color: "#2c3e50", margin: "2px 0 8px 0", fontSize: "24px" }}>
         Schalke fantasy ⚽
       </h1>
 
