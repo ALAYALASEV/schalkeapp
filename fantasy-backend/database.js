@@ -1,18 +1,42 @@
-const Database = require("better-sqlite3");
+// database.js
+require("dotenv").config();
+const { Pool } = require("pg");
 
-// Crea o abre un archivo de base de datos llamado schalke.db
-const db = new Database("schalke.db");
+// Conexión al pool de PostgreSQL (Render)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // necesario en Render
+  },
+});
 
-// Crear la tabla si no existe
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS jugadores (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    posicion TEXT NOT NULL,
-    puntos INTEGER DEFAULT 0,
-    imagen TEXT,
-    titular BOOLEAN DEFAULT 0
-  )
-`).run();
+// Crear tablas si no existen
+(async () => {
+  try {
+    // Tabla jugadores
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS jugadores (
+        id SERIAL PRIMARY KEY,
+        nombre TEXT NOT NULL,
+        posicion TEXT NOT NULL,
+        puntos INTEGER DEFAULT 0,
+        imagen TEXT,
+        titular BOOLEAN DEFAULT FALSE
+      );
+    `);
 
-module.exports = db;
+    // Tabla configuración
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS configuracion (
+        clave TEXT PRIMARY KEY,
+        valor TEXT
+      );
+    `);
+
+    console.log("✅ Tablas 'jugadores' y 'configuracion' listas en PostgreSQL");
+  } catch (err) {
+    console.error("❌ Error creando las tablas", err);
+  }
+})();
+
+module.exports = pool;
